@@ -7,35 +7,35 @@ K_1 = 0.035  # Коэффициент для подсчета калорий
 K_2 = 0.029  # Коэффициент для подсчета калорий
 STEP_M = 0.65  # Длина шага в метрах
 
-storage_data = {}
+storage_data: dict[dt.time, int] = {}
 
 
-def check_correct_data(data):
+def check_correct_data(data) -> bool:
     """Проверка корректности полученного пакета."""
     if len(data) != 2 or None in data:
         return False
     return True
 
 
-def check_correct_time(time):
+def check_correct_time(time) -> bool:
     """Проверка корректности параметра времени."""
     if storage_data and time <= max(storage_data):
         return False
     return True
 
 
-def get_step_day(steps):
+def get_step_day(steps: int) -> int:
     """Получить количество пройденных шагов за день."""
     day_steps = sum(value for value in storage_data.values())
     return day_steps+steps
 
 
-def get_distance(steps):
+def get_distance(steps: int) -> float:
     """Получить дистанцию пройденного пути в км."""
-    return (steps * STEP_M)/1000000
+    return (steps * STEP_M)/1000
 
 
-def get_spent_calories(dist, current_time):
+def get_spent_calories(dist: float, current_time: dt.time) -> float:
     """Получить значения потраченных калорий."""
     time = current_time.hour + current_time.minute/60
     mean_speed = (dist / time)
@@ -44,39 +44,41 @@ def get_spent_calories(dist, current_time):
     )
 
 
-def get_achievement(dist):
+def get_achievement(dist: float) -> str:
     """Получить поздравления за пройденную дистанцию."""
     if dist < 2:
         return 'Лежать тоже полезно. Главное — участие, а не победа!'
     if dist < 3.9:
-        return 'Маловато, но завтра наверстаем!"
+        return 'Маловато, но завтра наверстаем!'
     if dist < 6.5:
         return 'Неплохо! День был продуктивным.'
     return 'Отличный результат! Цель достигнута.'
 
 
-def show_message(time, steps, dist, calories, achiev):
+def show_message(time: dt.time,
+                 steps: int,
+                 dist: float,
+                 calories: float,
+                 achiev: str):
     """Вывести на экран результаты вычислений"""
-    print(f'''
-Время: {time}.
-Количество шагов за сегодня: {steps}.
-Дистанция составила {dist:.2f} км.
-Вы сожгли {calories:.2f} ккал.
-{achiev}
-        ''')
+    print(f'Время: {time}.')
+    print(f'Количество шагов за сегодня: {steps}.')
+    print(f'Дистанция составила {dist:.2f} км.')
+    print(f'Вы сожгли {calories:.2f} ккал.')
+    print(f'{achiev}')
 
 
-def accept_package(data):
+def accept_package(data: tuple[str, int]) -> dict[dt.time, int]:
     """Обработать пакет данных."""
 
     if not check_correct_data(data):
-        return 'Некорректный пакет'
+        print('Некорректный пакет')
 
     time, steps = data
     pack_time = dt.datetime.strptime(time, FORMAT).time()
 
     if not check_correct_time(pack_time):
-        return 'Некорректное значение времени'
+        print('Некорректное значение времени')
 
     day_steps = get_step_day(steps)
     dist = get_distance(day_steps)

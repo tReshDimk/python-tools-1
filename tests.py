@@ -1,4 +1,5 @@
 from datetime import time
+
 import main
 
 
@@ -12,4 +13,3 @@ def test_get_spent_calories():
 
 def test_get_achievement():
     assert main.get_achievement(7) == 'Отличный результат! Цель достигнута.'
-
